@@ -178,3 +178,155 @@
 .sheet-body :is(.stat-block, .stats-list, section, div) {
   border-color: var(--ha-borde) !important;
 }
+/* Black Skies: estilos del módulo. */
+:root {
+  --ha-verde: #6bff8a;
+  --ha-negro: #0b0b0d;
+}
+
+/* Pantalla de pausa: icono y texto propios de Black Skies */
+#pause img,
+#pause.paused img {
+  content: url("../assets/pause.svg") !important;
+  animation: none !important;
+  filter: drop-shadow(0 0 12px var(--ha-verde));
+}
+
+#pause figcaption,
+#pause.paused figcaption {
+  font-size: 0 !important;
+  letter-spacing: 0.35em;
+}
+
+#pause figcaption::after,
+#pause.paused figcaption::after {
+  content: "BLACK SKIES";
+  font-size: 2rem;
+  color: var(--ha-verde);
+  text-shadow: 0 0 10px var(--ha-verde);
+}
+
+/* Ficha de personaje: ocultar Nacionalidad, Rama y Rango (herencia militar de Twilight: 2000) */
+.sheet-header .grid-actor-header > .nation,
+.sheet-header .grid-actor-header > .branch,
+.sheet-header .grid-actor-header > .rank {
+  display: none !important;
+}
+
+/* La edad ocupa toda la fila para que la cabecera no quede descuadrada */
+.sheet-header .grid-actor-header > .age {
+  grid-column: 1 / -1;
+}
+
+/* ===== Ficha de personaje: paleta Black Skies (negro + verde atmósfera) ===== */
+:root {
+  --ha-fondo: #0b0b0d;
+  --ha-panel: #14161a;
+  --ha-borde: #2a3a2f;
+  --ha-texto: #cfd8cf;
+  --ha-verde-oscuro: #1f3a2a;
+}
+
+/* Fondo: quita el pergamino */
+.window-content:has(.sheet-header) {
+  background: var(--ha-fondo) !important;
+  background-image: none !important;
+  color: var(--ha-texto);
+  scrollbar-color: var(--ha-verde) var(--ha-panel);
+}
+
+/* Texto base de la ficha */
+.window-content:has(.sheet-header) :is(h2, h3, h4, h5, label, span, div, p, a) {
+  color: inherit;
+}
+
+/* Título y encabezados */
+.sheet-header h1 input,
+.sheet-header h1 {
+  color: var(--ha-verde) !important;
+  text-shadow: 0 0 8px rgba(107, 255, 138, 0.35);
+}
+.sheet-header h3,
+.sheet-body h2 {
+  color: var(--ha-verde) !important;
+  border-color: var(--ha-borde) !important;
+}
+
+/* Campos de texto y selectores */
+.window-content:has(.sheet-header) :is(input, select, textarea) {
+  background: var(--ha-panel) !important;
+  color: #e6efe6 !important;
+  border-color: var(--ha-borde) !important;
+}
+
+/* Pestañas */
+.sheet-tabs .item {
+  background: var(--ha-panel) !important;
+  color: var(--ha-texto) !important;
+  border-color: var(--ha-borde) !important;
+}
+.sheet-tabs .item.active {
+  background: var(--ha-verde-oscuro) !important;
+  color: var(--ha-verde) !important;
+  text-shadow: 0 0 6px rgba(107, 255, 138, 0.5);
+}
+
+/* Cuadros de capacidad (salud y estrés) y valores */
+.capacity .boxes i,
+.capacity .boxes .far {
+  color: var(--ha-verde) !important;
+}
+.capacity-value,
+.boxed-value {
+  background: var(--ha-panel) !important;
+  color: var(--ha-verde) !important;
+  border-color: var(--ha-borde) !important;
+}
+
+/* Líneas y bordes del cuerpo de la ficha */
+.sheet-body :is(.stat-block, .stats-list, section, div) {
+  border-color: var(--ha-borde) !important;
+}
+
+/* ===== Corrección: cuerpo de la ficha, barras de sección y pestañas ===== */
+.sheet-body,
+.sheet-body .tab {
+  background: var(--ha-fondo) !important;
+  background-image: none !important;
+  scrollbar-color: var(--ha-verde) var(--ha-panel);
+}
+
+/* Quita fondos beis de los bloques interiores (salvo los cuadros de valor) */
+.sheet-body :is(section, div, .stats-list, .stat-block):not(.boxed-value):not(.capacity-value) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Barras de sección: ATTRIBUTES & SKILLS, SPECIALTIES... */
+.sheet-body h2,
+.sheet-body h3,
+.sheet-body .section-header {
+  background: var(--ha-verde-oscuro) !important;
+  background-image: none !important;
+  color: var(--ha-verde) !important;
+}
+
+/* Etiquetas y nombres de habilidades, bien legibles */
+.sheet-body :is(h4, h5, label, span, a, p) {
+  color: var(--ha-texto) !important;
+}
+
+/* Pestañas: fondo oscuro también en las formas inclinadas */
+.sheet-tabs,
+.sheet-tabs .item,
+.sheet-tabs .item::before,
+.sheet-tabs .item::after {
+  background-color: var(--ha-panel) !important;
+  background-image: none !important;
+  border-color: var(--ha-borde) !important;
+}
+.sheet-tabs .item.active,
+.sheet-tabs .item.active::before,
+.sheet-tabs .item.active::after {
+  background-color: var(--ha-verde-oscuro) !important;
+}
