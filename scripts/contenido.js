@@ -6,7 +6,7 @@
   Hooks.once("ready", async () => {
     if (!game.user.isGM) return;
     let data;
-    try { data = await (await fetch(`modules/${ID}/contenido/contenido.json`)).json(); }
+    try { data = await (await fetch(`modules/${ID}/contenido/contenido.json?v=${Date.now()}`, { cache: "no-store" })).json(); }
     catch (e) { console.warn("black-skies | no se pudo leer contenido.json", e); return; }
     const hecho = foundry.utils.deepClone(game.settings.get(ID, "contenidoCreado") || {});
     const carpetas = {};
