@@ -41,6 +41,16 @@
         hecho[clave] = data.version;
       } catch (e) { console.warn("black-skies | fallo actor", a.nombre, e); }
     }
+    const tiposItem = game.documentTypes?.Item ?? [];
+    for (const o of data.objetos ?? []) {
+      const clave = `O:${o.nombre}`;
+      if (hecho[clave] >= data.version) continue;
+      try {
+        const tipo = tiposItem.includes(o.tipo) ? o.tipo : (tiposItem.includes("gear") ? "gear" : tiposItem[0]);
+        await Item.create({ name: o.nombre, type: tipo, folder: await carpeta(o.carpeta, "Item"), system: { description: o.descripcion } });
+        hecho[clave] = data.version;
+      } catch (e) { console.warn("black-skies | fallo objeto", o.nombre, e); }
+    }
     await game.settings.set(ID, "contenidoCreado", hecho);
     console.log("black-skies | contenido listo");
   });
