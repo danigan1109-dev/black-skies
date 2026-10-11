@@ -19,16 +19,26 @@
       if (!sub) sub = await Folder.create({ name: nombre, type: tipo, folder: raiz.id });
       return (carpetas[k] = sub.id);
     };
+    const revJ = data.revisionDiarios ?? data.version;
     for (const j of data.journals) {
       const clave = `J:${j.nombre}`;
-      if (hecho[clave] >= data.version) continue;
+      if (hecho[clave] >= revJ) continue;
       try {
-        await JournalEntry.create({
-          name: j.nombre,
-          folder: await carpeta(j.carpeta, "JournalEntry"),
-          pages: j.paginas.map(p => ({ name: p.nombre, type: "text", text: { content: p.html, format: 1 } }))
-        });
-        hecho[clave] = data.version;
+        const existente = game.journal.getName(j.nombre);
+        if (existente) {
+          for (const p of j.paginas) {
+            const pg = existente.pages.getName(p.nombre);
+            if (pg) await pg.update({ "text.content": p.html });
+            else await existente.createEmbeddedDocuments("JournalEntryPage", [{ name: p.nombre, type: "text", text: { content: p.html, format: 1 } }]);
+          }
+        } else {
+          await JournalEntry.create({
+            name: j.nombre,
+            folder: await carpeta(j.carpeta, "JournalEntry"),
+            pages: j.paginas.map(p => ({ name: p.nombre, type: "text", text: { content: p.html, format: 1 } }))
+          });
+        }
+        hecho[clave] = revJ;
       } catch (e) { console.warn("black-skies | fallo journal", j.nombre, e); }
     }
     const tipos = game.documentTypes?.Actor ?? [];
