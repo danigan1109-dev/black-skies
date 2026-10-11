@@ -1,35 +1,29 @@
+(() => {
 const MODULE_ID = "black-skies";
 
-Hooks.once("init", () => {
-  console.log(`${MODULE_ID} | Inicializando Black Skies`);
-});
-
-Hooks.once("ready", () => {
-  console.log(`${MODULE_ID} | Listo`);
-});
-const MODULE_ID = "black-skies";
-
-// Textos visibles de la ficha que se renombran (solo etiquetas; los datos no cambian).
-const RENAMES = {
-  "Radiation": "Contaminación",
-  "Temporary": "Reversible",
-  "Permanent": "Permanente",
-  "Unit Morale": "Esperanza",
-  "Coolness Under Fire": "Sangre fría"
-};
+// Etiquetas visibles que se renombran (los datos internos no cambian).
+const RENAMES = [
+  ["Unit Morale", "Esperanza"],
+  ["Coolness Under Fire", "Sangre fría"],
+  ["Radiation", "Contaminación"],
+  ["Temporary", "Reversible"],
+  ["Permanent", "Permanente"]
+];
 
 function renameLabels(root) {
+  if (!root) return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    const text = node.nodeValue.trim();
-    if (!text) continue;
-    for (const [from, to] of Object.entries(RENAMES)) {
-      if (text.toLowerCase() === from.toLowerCase()) {
-        node.nodeValue = node.nodeValue.replace(new RegExp(from, "i"), to);
-        break;
-      }
+  const nodes = [];
+  let n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  for (const node of nodes) {
+    let v = node.nodeValue;
+    if (!v || !v.trim()) continue;
+    let out = v;
+    for (const [from, to] of RENAMES) {
+      out = out.replace(new RegExp(`\\b${from}\\b`, "gi"), to);
     }
+    if (out !== v) node.nodeValue = out;
   }
 }
 
@@ -38,15 +32,19 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("ready", () => {
-  console.log(`${MODULE_ID} | Listo`);
+  console.log(`${MODULE_ID} | Listo (renombrado v2)`);
 });
 
-// V1 (jQuery) y V2 (HTMLElement) de hojas.
-Hooks.on("renderActorSheet", (app, html) => {
-  const el = html instanceof HTMLElement ? html : html[0];
-  if (el) renameLabels(el);
-});
-Hooks.on("renderActorSheetV2", (app, html) => {
-  const el = html instanceof HTMLElement ? html : html[0];
-  if (el) renameLabels(el);
-});
+// Cualquier ventana renderizada (V1 jQuery o V2 HTMLElement).
+function handler(app, html) {
+  const el = html instanceof HTMLElement ? html : (html?.[0] ?? app?.element?.[0] ?? app?.element);
+  if (el instanceof HTMLElement && el.querySelector(".sheet-header, .sheet-body")) {
+    renameLabels(el);
+    setTimeout(() => renameLabels(el), 150);
+  }
+}
+Hooks.on("renderApplication", handler);
+Hooks.on("renderActorSheet", handler);
+Hooks.on("renderApplicationV2", handler);
+
+})();
