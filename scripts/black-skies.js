@@ -8,7 +8,13 @@ const RENAMES = [
   ["Coolness Under Fire", "Sangre fría"],
   ["Radiation", "Contaminación"],
   ["Temporary", "Reversible"],
-  ["Permanent", "Permanente"]
+  ["Permanent", "Permanente"],
+  ["Starving", "Hambriento"],
+  ["Dehydrated", "Deshidratado"],
+  ["Sleep Deprived", "Privado de sueño"],
+  ["Hypothermic", "Hipotermia"],
+  ["Slow", "Lenta"],
+  ["Fast", "Rápida"]
 ];
 
 function renameLabels(root) {
