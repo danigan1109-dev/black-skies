@@ -26,7 +26,8 @@
     }
   ],
   "esmodules": [
-    "scripts/black-skies.js"
+    "scripts/black-skies.js",
+    "scripts/contenido.js"
   ],
   "styles": [
     "styles/black-skies.css"
