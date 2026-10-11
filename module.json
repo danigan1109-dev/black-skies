@@ -1,0 +1,59 @@
+{
+  "id": "horizonte-alien",
+  "title": "Horizonte Alien",
+  "description": "Contaminación, Muro Negro y alienígenas de Horizonte Alien adaptados a Twilight: 2000 (Year Zero). Terror de supervivencia tras la invasión de los Intrusos.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Dani (Gan Central)",
+      "url": "https://gancentral.com"
+    }
+  ],
+  "url": "https://github.com/USUARIO/horizonte-alien",
+  "manifest": "https://github.com/USUARIO/horizonte-alien/releases/latest/download/module.json",
+  "download": "https://github.com/USUARIO/horizonte-alien/releases/download/v0.0.1/module.zip",
+  "license": "https://github.com/USUARIO/horizonte-alien/blob/main/LICENSE",
+  "bugs": "https://github.com/USUARIO/horizonte-alien/issues",
+  "languages": [
+    {
+      "lang": "es",
+      "name": "Español",
+      "path": "languages/es.json"
+    }
+  ],
+  "esmodules": [
+    "scripts/horizonte-alien.js"
+  ],
+  "styles": [
+    "styles/horizonte-alien.css"
+  ],
+  "packs": [
+    {
+      "name": "alienigenas",
+      "label": "Alienígenas",
+      "path": "packs/alienigenas",
+      "type": "Actor",
+      "system": "t2k4e"
+    },
+    {
+      "name": "reglas",
+      "label": "Reglas: Contaminación y Muro Negro",
+      "path": "packs/reglas",
+      "type": "JournalEntry",
+      "system": "t2k4e"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "t2k4e",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  }
+}
