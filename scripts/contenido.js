@@ -52,13 +52,17 @@
       } catch (e) { console.warn("black-skies | fallo actor", a.nombre, e); }
     }
     const tiposItem = game.documentTypes?.Item ?? [];
+    const revO = data.revisionObjetos ?? data.version;
     for (const o of data.objetos ?? []) {
       const clave = `O:${o.nombre}`;
-      if (hecho[clave] >= data.version) continue;
+      if (hecho[clave] >= revO) continue;
       try {
         const tipo = tiposItem.includes(o.tipo) ? o.tipo : (tiposItem.includes("gear") ? "gear" : tiposItem[0]);
-        await Item.create({ name: o.nombre, type: tipo, folder: await carpeta(o.carpeta, "Item"), system: { description: o.descripcion } });
-        hecho[clave] = data.version;
+        const sistema = foundry.utils.mergeObject({ description: o.descripcion }, o.system ?? {}, { inplace: false });
+        const existente = game.items.getName(o.nombre);
+        if (existente) await existente.update({ system: sistema });
+        else await Item.create({ name: o.nombre, type: tipo, folder: await carpeta(o.carpeta, "Item"), system: sistema });
+        hecho[clave] = revO;
       } catch (e) { console.warn("black-skies | fallo objeto", o.nombre, e); }
     }
     await game.settings.set(ID, "contenidoCreado", hecho);
