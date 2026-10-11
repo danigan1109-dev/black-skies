@@ -4,6 +4,8 @@ const MODULE_ID = "black-skies";
 
 // Etiquetas visibles que se renombran (los datos internos no cambian).
 const RENAMES = [
+  ["Add the Unit Morale", "Add Esperanza"],
+  ["Moral de la Unidad", "Esperanza"],
   ["Unit Morale", "Esperanza"],
   ["Coolness Under Fire", "Sangre fría"],
   ["Radiation", "Contaminación"],
@@ -233,7 +235,7 @@ Hooks.once("ready", () => {
 // Cualquier ventana renderizada (V1 jQuery o V2 HTMLElement).
 function handler(app, html) {
   const el = html instanceof HTMLElement ? html : (html?.[0] ?? app?.element?.[0] ?? app?.element);
-  if (el instanceof HTMLElement && el.querySelector(".sheet-header, .sheet-body")) {
+  if (el instanceof HTMLElement && (el.matches(".cuf-dialog") || el.querySelector(".sheet-header, .sheet-body, .cuf-dialog"))) {
     renameLabels(el);
     setTimeout(() => renameLabels(el), 150);
   }
