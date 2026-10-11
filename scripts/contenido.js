@@ -79,6 +79,24 @@
         hecho[clave] = revO;
       } catch (e) { console.warn("black-skies | fallo objeto", o.nombre, e); }
     }
+    const revT = data.revisionTablas ?? 0;
+    for (const tb of data.tablas ?? []) {
+      const clave = "T:" + tb.nombre;
+      if (hecho[clave] >= revT) continue;
+      try {
+        const tipoTexto = CONST.TABLE_RESULT_TYPES?.TEXT ?? 0;
+        const resultados = tb.resultados.map((r, i) => ({ type: tipoTexto, text: r, description: r, range: [i + 1, i + 1], weight: 1 }));
+        const existente = game.tables.getName(tb.nombre);
+        if (existente) {
+          await existente.deleteEmbeddedDocuments("TableResult", existente.results.map(x => x.id));
+          await existente.update({ description: tb.descripcion ?? "" });
+          await existente.createEmbeddedDocuments("TableResult", resultados);
+        } else {
+          await RollTable.create({ name: tb.nombre, formula: "1d" + resultados.length, description: tb.descripcion ?? "", folder: await carpeta(tb.carpeta, "RollTable"), results: resultados });
+        }
+        hecho[clave] = revT;
+      } catch (e) { console.warn("black-skies | fallo tabla", tb.nombre, e); }
+    }
     await game.settings.set(ID, "contenidoCreado", hecho);
     console.log("black-skies | contenido listo");
   });
