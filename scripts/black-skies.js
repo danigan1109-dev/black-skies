@@ -71,6 +71,8 @@ const JOURNALS = [
 <li>Puede arriesgar su propio dado para ayudar a un compañero (que repita una tirada o pierda 1 Estrés). Si falla, baja él.</li>
 <li>Sube un escalón con un momento de calma, un vínculo con otro personaje o un objetivo cumplido. Baja con bajas, derrotas o perder la base.</li>
 <li>En el último escalón el personaje se <strong>rompe</strong>: se paraliza, huye o hace una locura hasta que descanse o alguien le dé un respiro.</li>
+<li><strong>Sangre fría (pánico):</strong> con disparos o algo aterrador, cada personaje tira su dado de Sangre fría (6+ aguanta) y puede sumar su dado de Esperanza. Si aguanta solo gracias al dado de Esperanza, esa Esperanza baja un escalón; si fallan los dos, entra en pánico (se paraliza, huye o se queda aturdido) y la Esperanza también baja un escalón.</li>
+<li><strong>Estados (iconos del token):</strong> Contaminado (la marca verde, sube con la Contaminación), Perseguido (Atracción alta sobre ti, no descansas bien) y Roto (Esperanza en el último escalón).</li>
 </ul>
 
 <h2>3. Atracción (reloj de alerta)</h2>
@@ -192,7 +194,7 @@ Hooks.once("ready", async () => {
   const hechos = foundry.utils.deepClone(game.settings.get(MODULE_ID, "journalesCreados") ?? {});
   let cambios = false;
   for (const j of JOURNALS) {
-    if (hechos[j.nombre] >= 2) continue;
+    if (hechos[j.nombre] >= 3) continue;
     const ex = game.journal.getName(j.nombre);
     if (ex) {
       const pg = ex.pages.contents[0];
@@ -204,10 +206,22 @@ Hooks.once("ready", async () => {
       });
       ui.notifications.info(`Black Skies: diario "${j.nombre}" creado.`);
     }
-    hechos[j.nombre] = 2;
+    hechos[j.nombre] = 3;
     cambios = true;
   }
   if (cambios) await game.settings.set(MODULE_ID, "journalesCreados", hechos);
+});
+
+// Estados propios de Black Skies (iconos del token)
+Hooks.once("ready", () => {
+  const extra = [
+    { id: "contaminado", name: "Contaminado", label: "Contaminado", img: "icons/svg/biohazard.svg" },
+    { id: "perseguido", name: "Perseguido", label: "Perseguido", img: "icons/svg/eye.svg" },
+    { id: "roto", name: "Roto", label: "Roto", img: "icons/svg/terror.svg" }
+  ];
+  for (const e of extra) {
+    if (!CONFIG.statusEffects.some(s => s.id === e.id)) CONFIG.statusEffects.push(e);
+  }
 });
 
 // Cualquier ventana renderizada (V1 jQuery o V2 HTMLElement).
