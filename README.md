@@ -1,6 +1,6 @@
-# Horizonte Alien
+# Black Skies
 
-Módulo para Foundry VTT. Adapta al sistema Twilight: 2000 (Free League, motor Year Zero) la contaminación, el Muro Negro y los alienígenas del universo Horizonte Alien.
+Módulo para Foundry VTT. Adapta al sistema Twilight: 2000 (Free League, motor Year Zero) la contaminación, el Muro Negro y los alienígenas del universo Black Skies.
 
 Estado: esqueleto. Los compendios `alienigenas` y `reglas` están vacíos y se irán llenando por bloques.
 
@@ -9,7 +9,7 @@ Estado: esqueleto. Los compendios `alienigenas` y `reglas` están vacíos y se i
 1. En Foundry, ve a Configuración > Módulos complementarios > Instalar módulo.
 2. Pega este enlace en "URL del manifiesto":
 
-   `https://github.com/USUARIO/horizonte-alien/releases/latest/download/module.json`
+   `https://github.com/danigan1109-dev/black-skies/releases/latest/download/module.json`
 
 3. Instala y activa el módulo dentro de un mundo de Twilight: 2000.
 

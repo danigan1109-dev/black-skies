@@ -1,0 +1,6 @@
+/* Black Skies: estilos del módulo.
+   Aquí irán los estilos de la atmósfera verde y el Muro Negro. */
+:root {
+  --ha-verde: #6bff8a;
+  --ha-negro: #0b0b0d;
+}
