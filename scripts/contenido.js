@@ -74,8 +74,8 @@
         const tipo = tiposItem.includes(o.tipo) ? o.tipo : (tiposItem.includes("gear") ? "gear" : tiposItem[0]);
         const sistema = foundry.utils.mergeObject({ description: o.descripcion }, o.system ?? {}, { inplace: false });
         const existente = game.items.getName(o.nombre);
-        if (existente) await existente.update({ system: sistema });
-        else await Item.create({ name: o.nombre, type: tipo, folder: await carpeta(o.carpeta, "Item"), system: sistema });
+        if (existente) await existente.update(o.rol ? { system: sistema, flags: { [ID]: { rol: o.rol } } } : { system: sistema });
+        else await Item.create({ name: o.nombre, type: tipo, folder: await carpeta(o.carpeta, "Item"), system: sistema, flags: o.rol ? { [ID]: { rol: o.rol } } : {} });
         hecho[clave] = revO;
       } catch (e) { console.warn("black-skies | fallo objeto", o.nombre, e); }
     }
