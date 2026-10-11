@@ -42,13 +42,27 @@
       } catch (e) { console.warn("black-skies | fallo journal", j.nombre, e); }
     }
     const tipos = game.documentTypes?.Actor ?? [];
+    const revA = data.revisionActores ?? data.version;
     for (const a of data.actores) {
       const clave = `A:${a.nombre}`;
-      if (hecho[clave] >= data.version) continue;
+      if (hecho[clave] >= revA) continue;
       try {
         const tipo = tipos.includes(a.tipo) ? a.tipo : (tipos.includes("character") ? "character" : tipos[0]);
-        await Actor.create({ name: a.nombre, type: tipo, folder: await carpeta(a.carpeta, "Actor") });
-        hecho[clave] = data.version;
+        const sistema = foundry.utils.mergeObject({ description: a.descripcion ?? "" }, a.system ?? {}, { inplace: false });
+        const objetos = (a.objetos ?? []).map(o => ({ name: o.nombre, type: o.tipo, system: o.system ?? {} }));
+        const existente = game.actors.getName(a.nombre);
+        if (existente) {
+          if (a.system) {
+            await existente.update({ system: sistema });
+            const nombres = objetos.map(o => o.name);
+            const viejos = existente.items.filter(i => nombres.includes(i.name)).map(i => i.id);
+            if (viejos.length) await existente.deleteEmbeddedDocuments("Item", viejos);
+            if (objetos.length) await existente.createEmbeddedDocuments("Item", objetos);
+          }
+        } else {
+          await Actor.create({ name: a.nombre, type: tipo, folder: await carpeta(a.carpeta, "Actor"), system: sistema, items: objetos });
+        }
+        hecho[clave] = revA;
       } catch (e) { console.warn("black-skies | fallo actor", a.nombre, e); }
     }
     const tiposItem = game.documentTypes?.Item ?? [];
