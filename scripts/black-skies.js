@@ -30,13 +30,13 @@ function renameLabels(root) {
 
 Hooks.once("init", () => {
   console.log(`${MODULE_ID} | Inicializando Black Skies`);
-  game.settings.register(MODULE_ID, "journalCreado", {
-    scope: "world", config: false, type: Boolean, default: false
+  game.settings.register(MODULE_ID, "journalesCreados", {
+    scope: "world", config: false, type: Object, default: {}
   });
 });
 
-const JOURNAL_NOMBRE = "Contaminación y Muro Negro";
-const JOURNAL_HTML = `<h1>Contaminación y Muro Negro</h1>
+const JOURNALS = [
+  { nombre: "Contaminación y Muro Negro", html: `<h1>Contaminación y Muro Negro</h1>
 <p><em>Reglas propias de Black Skies, pensadas para usarse sobre el motor Year Zero. Proyecto de fans, no oficial.</em></p>
 
 <h2>1. Contaminación (0 a 10)</h2>
@@ -92,22 +92,117 @@ const JOURNAL_HTML = `<h1>Contaminación y Muro Negro</h1>
 <li><strong>Peligro creciente:</strong> cada escena dentro del Muro sube también la Atracción en +1.</li>
 <li><strong>Cruzar:</strong> exige una tirada de Resistencia con pérdida de Estrés si falla. Quien lo cruza ya no vuelve igual: gana 1 casilla permanente de Contaminación.</li>
 </ul>
-`;
+` },
+  { nombre: "Bestiario: los Intrusos", html: `<h1>Bestiario: los Intrusos</h1>
+<p><em>Criaturas de Black Skies adaptadas al motor Year Zero. Proyecto de fans, no oficial.</em></p>
+<p><strong>Cómo leer las fichas.</strong> Los dados usan letras: <strong>A = D12, B = D10, C = D8, D = D6</strong>. <strong>Salud</strong> son las casillas que hay que marcar para derribarlo. <strong>Armadura</strong> es el dado que resta daño. <strong>Estrés</strong> es lo que ganan los personajes. <strong>Cont.</strong> es la Contaminación que causa.</p>
+
+<h2>Centinela</h2>
+<p>Figura alta con armadura negra que se confunde con la oscuridad y sensores azules que giran solos. Patrulla el Muro Negro y los laboratorios. Silencioso, metódico, sin piedad.</p>
+<p><strong>Salud 3 · Armadura C · Ataque: Golpe B / Rayo B (alcance)</strong></p>
+<ul>
+<li><strong>Aura de pánico:</strong> a menos de 10 metros, tirada de calma o ganas 1 Estrés y haces ruido (+1 Atracción).</li>
+<li><strong>Escanear:</strong> los que se mueven en su campo de visión tiran Sigilo; si fallan, te detecta.</li>
+<li><strong>Alarma:</strong> acción rápida. Atracción +2 y llegan refuerzos.</li>
+<li><strong>Carga:</strong> si te alcanza, te inmoviliza hasta que superes una tirada de Fuerza.</li>
+<li>Cont.: +1 si pasas la escena a su lado.</li>
+</ul>
+
+<h2>Psiónico</h2>
+<p>Esbelto, de piel translúcida y ojos sin pupila que brillan en violeta. Flota despacio. Manipula desde lejos y rara vez pelea.</p>
+<p><strong>Salud 2 · Armadura: barrera psíquica (absorbe 2 ataques) · Ataque: Intrusión mental C</strong></p>
+<ul>
+<li><strong>Susurro:</strong> el objetivo tira calma o gana 2 Estrés.</li>
+<li><strong>Control:</strong> un personaje con Estrés al máximo obedece una orden durante una acción.</li>
+<li><strong>Distorsión:</strong> la zona tiene un dado menos en Percepción.</li>
+<li>Cont.: +1 por escena a la vista.</li>
+</ul>
+
+<h2>Dromín</h2>
+<p>Vehículo flotante de metal oscuro con vetas verdes y violetas. Patrulla zonas clave y destruye todo lo que se mueve.</p>
+<p><strong>Salud 4 · Armadura B · Ataque: Cañón A (daño alto) / Ametralladora C (ráfaga)</strong></p>
+<ul>
+<li><strong>Foco:</strong> ilumina una zona. Quien está dentro no puede esconderse.</li>
+<li><strong>Persecución:</strong> es más rápido que un vehículo humano y solo se le puede esquivar con una tirada difícil.</li>
+<li>Solo le hacen daño real las armas pesadas o el ataque a un punto débil que el grupo haya descubierto.</li>
+<li>Cont.: +1 si vas dentro de uno capturado.</li>
+</ul>
+
+<h2>Convertido</h2>
+<p>Humanos con implantes alienígenas. Piel marcada con circuitos verdes y ojos vacíos. Obedecen sin voluntad, y antes eran personas.</p>
+<p><strong>Salud 2 · Armadura D (en algunas zonas) · Ataque: Golpe C / Arma humana C</strong></p>
+<ul>
+<li><strong>Reconocer:</strong> si el personaje conoció al Convertido, tira calma o gana 1 Estrés.</li>
+<li><strong>Enjambre:</strong> si hay 3 o más, atacan con un dado extra.</li>
+<li>Débil ante armas de energía.</li>
+<li>Cont.: +1 si recibes su golpe.</li>
+</ul>
+
+<h2>Aporreador</h2>
+<p>Criatura masiva de piel gris azulada con placas naturales y manos como mazos. Agresivo y directo: derriba lo que encuentra.</p>
+<p><strong>Salud 4 · Armadura C · Ataque: Aplastar A</strong></p>
+<ul>
+<li><strong>Derribo:</strong> si impacta, el personaje cae y pierde su próxima acción rápida.</li>
+<li><strong>Embestida:</strong> derriba muros y cobertura ligera.</li>
+<li>Resiste balas convencionales; sufre con armas pesadas y de energía.</li>
+</ul>
+
+<h2>Manipulador de Entorno</h2>
+<p>Fusionado con el terreno mediante raíces y cables. Lento. No ataca de frente: tiende trampas.</p>
+<p><strong>Salud 2 · Armadura: camuflaje (un dado menos para atacarlo) · Ataque: ninguno directo</strong></p>
+<ul>
+<li><strong>Alterar terreno:</strong> el suelo se vuelve resbaladizo o inestable. Tirada de Movimiento para no caer.</li>
+<li><strong>Distorsión:</strong> el aire vibra, un dado menos en Percepción.</li>
+<li>Cont.: +1 por hora en su zona.</li>
+</ul>
+
+<h2>Recolector</h2>
+<p>Alto, delgado, con varios brazos largos y luces que reaccionan al movimiento. Captura humanos para experimentar.</p>
+<p><strong>Salud 2 · Armadura D · Ataque: Captura C</strong></p>
+<ul>
+<li><strong>Captura:</strong> inmoviliza a un personaje y se lo lleva. Si el grupo no reacciona en 2 escenas, se pierde.</li>
+<li>Evita el combate y huye si recibe daño.</li>
+<li>Cont.: +1 a quien capturan.</li>
+</ul>
+
+<h2>Mentor</h2>
+<p>Cabeza grande, ojos brillantes y piel luminosa que cambia de color según su ánimo. Dirige a los demás por telepatía.</p>
+<p><strong>Salud 3 · Armadura: campo psíquico (se debilita con ataques mentales) · Ataque: Dominio B</strong></p>
+<ul>
+<li><strong>Control mental:</strong> toma el control de un personaje con Estrés al máximo durante una escena.</li>
+<li><strong>Coordinar:</strong> los Intrusos cercanos atacan con un dado extra.</li>
+<li>Cont.: +2 por escena en su presencia.</li>
+</ul>
+
+<h2>Ser de Energía Pura</h2>
+<p>Esfera o nube de luz pulsante, sin cuerpo. Provoca confusión y miedo y se alimenta de la energía psíquica.</p>
+<p><strong>Salud: inmaterial · Solo le afectan los ataques psíquicos o tecnología alienígena</strong></p>
+<ul>
+<li><strong>Alucinaciones:</strong> los cercanos ganan 1 Estrés por escena.</li>
+<li><strong>Drenaje:</strong> quita 1 punto de Esperanza al grupo si pasa el tiempo sin resolverse.</li>
+<li>Cont.: +1 por escena.</li>
+</ul>
+` }
+];
 
 Hooks.once("ready", async () => {
-  console.log(`${MODULE_ID} | Listo (renombrado v2 + diario)`);
+  console.log(`${MODULE_ID} | Listo (renombrado v2 + diarios)`);
   if (!game.user.isGM) return;
-  if (game.settings.get(MODULE_ID, "journalCreado")) return;
-  if (game.journal.getName(JOURNAL_NOMBRE)) {
-    await game.settings.set(MODULE_ID, "journalCreado", true);
-    return;
+  const hechos = foundry.utils.deepClone(game.settings.get(MODULE_ID, "journalesCreados") ?? {});
+  let cambios = false;
+  for (const j of JOURNALS) {
+    if (hechos[j.nombre]) continue;
+    if (!game.journal.getName(j.nombre)) {
+      await JournalEntry.create({
+        name: j.nombre,
+        pages: [{ name: j.nombre, type: "text", text: { format: 1, content: j.html } }]
+      });
+      ui.notifications.info(`Black Skies: diario "${j.nombre}" creado.`);
+    }
+    hechos[j.nombre] = true;
+    cambios = true;
   }
-  await JournalEntry.create({
-    name: JOURNAL_NOMBRE,
-    pages: [{ name: JOURNAL_NOMBRE, type: "text", text: { format: 1, content: JOURNAL_HTML } }]
-  });
-  await game.settings.set(MODULE_ID, "journalCreado", true);
-  ui.notifications.info("Black Skies: diario \"Contaminación y Muro Negro\" creado.");
+  if (cambios) await game.settings.set(MODULE_ID, "journalesCreados", hechos);
 });
 
 // Cualquier ventana renderizada (V1 jQuery o V2 HTMLElement).
