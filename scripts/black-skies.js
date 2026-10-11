@@ -243,4 +243,78 @@ function handler(app, html) {
 Hooks.on("renderApplication", handler);
 Hooks.on("renderActorSheet", handler);
 Hooks.on("renderApplicationV2", handler);
+
+// Roles: se arrastran a la ficha, suben un escalon las habilidades indicadas y añaden sus especialidades y equipo.
+// Al borrar el rol de la ficha se deshace todo.
+const ESCALONES = ["D", "C", "B", "A"];
+const ETIQUETAS = {
+  heavyWeapons: "Armas pesadas", closeCombat: "Cuerpo a cuerpo", stamina: "Aguante", driving: "Conducción",
+  mobility: "Movilidad", rangedCombat: "Combate a distancia", recon: "Reconocimiento", survival: "Supervivencia",
+  tech: "Tecnología", command: "Mando", persuasion: "Persuasión", medicalAid: "Primeros auxilios",
+  str: "Fuerza", agl: "Agilidad", int: "Intelecto", emp: "Empatía"
+};
+function subeLetra(l) {
+  const i = ESCALONES.indexOf(l);
+  if (i < 0) return "D";
+  return i >= 3 ? null : ESCALONES[i + 1];
+}
+function avisoRol(actor, texto) {
+  ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: "<p>" + texto + "</p>" });
+}
+
+Hooks.on("createItem", async (item, _opts, userId) => {
+  try {
+    if (userId !== game.user.id) return;
+    const actor = item.parent;
+    const rol = item.getFlag(MODULE_ID, "rol");
+    if (!actor || !rol) return;
+    if (item.getFlag(MODULE_ID, "aplicado")?.actor === actor.id) return;
+    if (!["character", "npc"].includes(actor.type)) return;
+    const upd = {};
+    const cambios = [];
+    const grupos = [["skills", rol.habilidades ?? []], ["attributes", rol.atributos ?? []]];
+    for (const [grupo, claves] of grupos) {
+      for (const k of claves) {
+        const ruta = "system." + grupo + "." + k + ".score";
+        const de = foundry.utils.getProperty(actor, ruta) ?? "";
+        const a = subeLetra(de);
+        if (!a) continue;
+        upd[ruta] = a;
+        cambios.push({ ruta, k, de, a });
+      }
+    }
+    const nuevos = [];
+    for (const nombre of [...(rol.especialidades ?? []), ...(rol.equipo ?? [])]) {
+      if (actor.items.some(i => i.name === nombre)) continue;
+      const base = game.items.getName(nombre);
+      if (!base) continue;
+      const o = base.toObject();
+      delete o._id;
+      nuevos.push(o);
+    }
+    const creados = nuevos.length ? await actor.createEmbeddedDocuments("Item", nuevos) : [];
+    if (Object.keys(upd).length) await actor.update(upd);
+    await item.setFlag(MODULE_ID, "aplicado", { actor: actor.id, cambios, items: creados.map(i => i.id) });
+    const partes = cambios.map(c => (ETIQUETAS[c.k] ?? c.k) + " " + (c.de || "–") + " → " + c.a);
+    if (creados.length) partes.push("añade: " + creados.map(i => i.name).join(", "));
+    avisoRol(actor, "<strong>" + item.name + "</strong>: " + (partes.join(" · ") || "sin cambios"));
+  } catch (e) { console.warn("black-skies | fallo al aplicar rol", e); }
+});
+
+Hooks.on("deleteItem", async (item, _opts, userId) => {
+  try {
+    if (userId !== game.user.id) return;
+    const actor = item.parent;
+    const ap = item.getFlag(MODULE_ID, "aplicado");
+    if (!actor || !ap || ap.actor !== actor.id || !game.actors.has(actor.id)) return;
+    const upd = {};
+    for (const c of ap.cambios ?? []) {
+      if (foundry.utils.getProperty(actor, c.ruta) === c.a) upd[c.ruta] = c.de;
+    }
+    const ids = (ap.items ?? []).filter(id => actor.items.has(id));
+    if (ids.length) await actor.deleteEmbeddedDocuments("Item", ids);
+    if (Object.keys(upd).length) await actor.update(upd);
+    avisoRol(actor, "<strong>" + item.name + "</strong> retirado: se deshacen sus cambios.");
+  } catch (e) { console.warn("black-skies | fallo al quitar rol", e); }
+});
 })();
