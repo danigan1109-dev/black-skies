@@ -67,9 +67,10 @@ const JOURNALS = [
 <h2>2. Estrés y Esperanza</h2>
 <ul>
 <li>El Estrés sube por la Contaminación (ver arriba), por el miedo y por empujar tiradas.</li>
-<li><strong>Esperanza</strong> es un recurso del grupo. Se gasta 1 punto para repetir una tirada fallida o para quitar 1 Estrés a un compañero.</li>
-<li>Los puntos de Esperanza se ganan con momentos de calma, de unión o al cumplir objetivos del refugio. Se pierden cuando el grupo sufre una baja o pierde su base.</li>
-<li>Con la Esperanza a 0, el grupo cae en la <strong>Desesperanza</strong>: no puede quitar Estrés ni descansar bien hasta lograr un momento de respiro.</li>
+<li><strong>Esperanza</strong> es individual: cada personaje usa el dado de Esperanza de su ficha (D12, D10, D8 o D6). Al invocarla tira ese dado: con éxito (6+) repite una tirada fallida o se quita 1 Estrés; si falla, su dado baja un escalón. Empujar sigue costando Estrés; la Esperanza cuesta escalones.</li>
+<li>Puede arriesgar su propio dado para ayudar a un compañero (que repita una tirada o pierda 1 Estrés). Si falla, baja él.</li>
+<li>Sube un escalón con un momento de calma, un vínculo con otro personaje o un objetivo cumplido. Baja con bajas, derrotas o perder la base.</li>
+<li>En el último escalón el personaje se <strong>rompe</strong>: se paraliza, huye o hace una locura hasta que descanse o alguien le dé un respiro.</li>
 </ul>
 
 <h2>3. Atracción (reloj de alerta)</h2>
@@ -179,7 +180,7 @@ const JOURNALS = [
 <p><strong>Salud: inmaterial · Solo le afectan los ataques psíquicos o tecnología alienígena</strong></p>
 <ul>
 <li><strong>Alucinaciones:</strong> los cercanos ganan 1 Estrés por escena.</li>
-<li><strong>Drenaje:</strong> quita 1 punto de Esperanza al grupo si pasa el tiempo sin resolverse.</li>
+<li><strong>Drenaje:</strong> baja un escalón la Esperanza de uno de los cercanos cada escena sin resolverse.</li>
 <li>Cont.: +1 por escena.</li>
 </ul>
 ` }
@@ -191,15 +192,19 @@ Hooks.once("ready", async () => {
   const hechos = foundry.utils.deepClone(game.settings.get(MODULE_ID, "journalesCreados") ?? {});
   let cambios = false;
   for (const j of JOURNALS) {
-    if (hechos[j.nombre]) continue;
-    if (!game.journal.getName(j.nombre)) {
+    if (hechos[j.nombre] >= 2) continue;
+    const ex = game.journal.getName(j.nombre);
+    if (ex) {
+      const pg = ex.pages.contents[0];
+      if (pg) await pg.update({ "text.content": j.html });
+    } else {
       await JournalEntry.create({
         name: j.nombre,
         pages: [{ name: j.nombre, type: "text", text: { format: 1, content: j.html } }]
       });
       ui.notifications.info(`Black Skies: diario "${j.nombre}" creado.`);
     }
-    hechos[j.nombre] = true;
+    hechos[j.nombre] = 2;
     cambios = true;
   }
   if (cambios) await game.settings.set(MODULE_ID, "journalesCreados", hechos);
