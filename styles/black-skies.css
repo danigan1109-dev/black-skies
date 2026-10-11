@@ -65,3 +65,7 @@
 .sheet-header .grid-actor-header > .rank {
   display: none !important;
 }
+/* La edad ocupa toda la fila para que la cabecera no quede descuadrada */
+.sheet-header .grid-actor-header > .age {
+  grid-column: 1 / -1;
+}
