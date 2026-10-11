@@ -28,7 +28,7 @@ jobs:
           ' module.json > module.tmp && mv module.tmp module.json
 
       - name: Empaquetar módulo
-        run: zip -r module.zip module.json languages packs scripts styles README.md
+        run: zip -r module.zip module.json languages packs scripts styles assets README.md
 
       - name: Subir archivos a la release
         uses: softprops/action-gh-release@v2
